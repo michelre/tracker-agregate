@@ -214,7 +214,7 @@ class PHPCrawler
     $classpath = dirname(__FILE__);
     
     // Utils-class
-    if (!class_exists("PHPCrawlerUtils")) include_once($classpath."/PHPCrawlerUtils.class.php");
+    if (!class_exists("PHPCrawlerUtils")) include_once($classpath . "/PHPCrawlerUtils.class.php");
     
     // URL-Cache-classes
     if (!class_exists("PHPCrawlerURLCacheBase")) include_once($classpath."/UrlCache/PHPCrawlerURLCacheBase.class.php");
@@ -222,7 +222,7 @@ class PHPCrawler
     if (!class_exists("PHPCrawlerSQLiteURLCache")) include_once($classpath."/UrlCache/PHPCrawlerSQLiteURLCache.class.php");
     
     // PageRequest-class
-    if (!class_exists("PHPCrawlerHTTPRequest")) include_once($classpath."/PHPCrawlerHTTPRequest.class.php");
+    if (!class_exists("PHPCrawlerHTTPRequest")) include_once($classpath . "/PHPCrawlerHTTPRequest.class.php");
     $this->PageRequest = new PHPCrawlerHTTPRequest();
     $this->PageRequest->setHeaderCheckCallbackFunction($this, "handleHeaderInfo");
       
@@ -232,34 +232,34 @@ class PHPCrawler
     if (!class_exists("PHPCrawlerSQLiteCookieCache")) include_once($classpath."/CookieCache/PHPCrawlerSQLiteCookieCache.class.php");
     
     // URL-filter-class
-    if (!class_exists("PHPCrawlerURLFilter")) include_once($classpath."/PHPCrawlerURLFilter.class.php");
+    if (!class_exists("PHPCrawlerURLFilter")) include_once($classpath . "/PHPCrawlerURLFilter.class.php");
     $this->UrlFilter = new PHPCrawlerURLFilter();
     
     // RobotsTxtParser-class
-    if (!class_exists("PHPCrawlerRobotsTxtParser")) include_once($classpath."/PHPCrawlerRobotsTxtParser.class.php");
+    if (!class_exists("PHPCrawlerRobotsTxtParser")) include_once($classpath . "/PHPCrawlerRobotsTxtParser.class.php");
     $this->RobotsTxtParser = new PHPCrawlerRobotsTxtParser();
     
     // ProcessReport-class
-    if (!class_exists("PHPCrawlerProcessReport")) include_once($classpath."/PHPCrawlerProcessReport.class.php");
+    if (!class_exists("PHPCrawlerProcessReport")) include_once($classpath . "/PHPCrawlerProcessReport.class.php");
     
     // UserSendDataCache-class
-    if (!class_exists("PHPCrawlerUserSendDataCache")) include_once($classpath."/PHPCrawlerUserSendDataCache.class.php");
+    if (!class_exists("PHPCrawlerUserSendDataCache")) include_once($classpath . "/PHPCrawlerUserSendDataCache.class.php");
     $this->UserSendDataCache = new PHPCrawlerUserSendDataCache();
     
     // URLDescriptor-class
-    if (!class_exists("PHPCrawlerURLDescriptor")) include_once($classpath."/PHPCrawlerURLDescriptor.class.php");
+    if (!class_exists("PHPCrawlerURLDescriptor")) include_once($classpath . "/PHPCrawlerURLDescriptor.class.php");
     
     // PageInfo-class
-    if (!class_exists("PHPCrawlerDocumentInfo")) include_once($classpath."/PHPCrawlerDocumentInfo.class.php");
+    if (!class_exists("PHPCrawlerDocumentInfo")) include_once($classpath . "/PHPCrawlerDocumentInfo.class.php");
     
     // Benchmark-class
-    if (!class_exists("PHPCrawlerBenchmark")) include_once($classpath."/PHPCrawlerBenchmark.class.php");
+    if (!class_exists("PHPCrawlerBenchmark")) include_once($classpath . "/PHPCrawlerBenchmark.class.php");
     
     // URLDescriptor-class
-    if (!class_exists("PHPCrawlerUrlPartsDescriptor")) include_once($classpath."/PHPCrawlerUrlPartsDescriptor.class.php");
+    if (!class_exists("PHPCrawlerUrlPartsDescriptor")) include_once($classpath . "/PHPCrawlerUrlPartsDescriptor.class.php");
     
     // CrawlerStatus-class
-    if (!class_exists("PHPCrawlerStatus")) include_once($classpath."/PHPCrawlerStatus.class.php");
+    if (!class_exists("PHPCrawlerStatus")) include_once($classpath . "/PHPCrawlerStatus.class.php");
     
     // AbortReasons-class
     if (!class_exists("PHPCrawlerAbortReasons")) include_once($classpath."/Enums/PHPCrawlerAbortReasons.class.php");

@@ -179,7 +179,7 @@ class PHPCrawlerHTTPRequest
   public function __construct()
   {
     // Init LinkFinder
-    if (!class_exists("PHPCrawlerLinkFinder")) include_once(dirname(__FILE__)."/PHPCrawlerLinkFinder.class.php");
+    if (!class_exists("PHPCrawlerLinkFinder")) include_once(dirname(__FILE__) . "/PHPCrawlerLinkFinder.class.php");
     $this->LinkFinder = new PHPCrawlerLinkFinder();
     
     // Init DNS-cache
@@ -190,7 +190,7 @@ class PHPCrawlerHTTPRequest
     if (!class_exists("PHPCrawlerCookieDescriptor")) include_once(dirname(__FILE__)."/PHPCrawlerCookieDescriptor.class.php");
     
     // ResponseHeader-class
-    if (!class_exists("PHPCrawlerResponseHeader")) include_once(dirname(__FILE__)."/PHPCrawlerResponseHeader.class.php");
+    if (!class_exists("PHPCrawlerResponseHeader")) include_once(dirname(__FILE__) . "/PHPCrawlerResponseHeader.class.php");
     
     // PHPCrawlerHTTPProtocols-class
     if (!class_exists("PHPCrawlerHTTPProtocols")) include_once(dirname(__FILE__)."/Enums/PHPCrawlerHTTPProtocols.class.php");
@@ -905,7 +905,8 @@ class PHPCrawlerHTTPRequest
     
     $headerlines[] = "Host: ".$this->url_parts["host"]."\r\n";
     
-    $headerlines[] = "User-Agent: ".str_replace("\n", "", $this->userAgentString)."\r\n";    $headerlines[] = "Accept: */*\r\n";
+    $headerlines[] = "User-Agent: ".str_replace("\n", "", $this->userAgentString)."\r\n";
+    $headerlines[] = "Accept: */*\r\n";
     
     // Request GZIP-content
     if ($this->request_gzip_content == true)
@@ -962,9 +963,9 @@ class PHPCrawlerHTTPRequest
    * Prepares the given HTTP-query-string for the HTTP-request.
    *
    * HTTP-query-strings always should be utf8-encoded and urlencoded afterwards.
-   * So "/path/file?test=tatütata" will be converted to "/path/file?test=tat%C3%BCtata":
+   * So "/path/file?test=tatï¿½tata" will be converted to "/path/file?test=tat%C3%BCtata":
    *
-   * @param stirng The quetry-string (like "/path/file?test=tatütata")
+   * @param stirng The quetry-string (like "/path/file?test=tatï¿½tata")
    * @return string
    */
   protected function prepareHTTPRequestQuery($query)
