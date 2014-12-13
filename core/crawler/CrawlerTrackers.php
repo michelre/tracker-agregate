@@ -7,6 +7,7 @@
  */
 
 require_once("libs/php-crawl/PHPCrawler.class.php");
+require_once('libs/log4php/main/php/Logger.php');
 
 class CrawlerTrackers extends PHPCrawler{
     protected  $db;
