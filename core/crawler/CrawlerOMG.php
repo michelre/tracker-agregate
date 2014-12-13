@@ -40,7 +40,6 @@ class CrawlerOMG extends PHPCrawler{
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
         $crawler->goMultiProcessed(5);
         $crawler->displayReport($report = $crawler->getProcessReport());
-        //$db->cpasbien->execute('ensureIndex({"slug":1}');
     }
 
     public static function crawlUpdate($db, $cursor, $tracker){
@@ -75,7 +74,8 @@ class CrawlerOMG extends PHPCrawler{
                 $data = array('slug' => $this->slugify($doc["#corps h1"]->html()), 'title' => $doc["#corps h1"]->html(),
                     'description' => $doc['.infos_fiche p']->html(), 'downloadLink' => $doc['#lien_dl']->attr('href'),
                     'size' => $matches[1], 'seeds' => $doc[".sources strong"]->html(),
-                    'leechs' => $doc[".clients strong"]->html(), 'url' => $DocInfo->referer_url.$lb, 'tracker' => 'omg');
+                    'leechs' => $doc[".clients strong"]->html(), 'url' => $DocInfo->referer_url.$lb, 'tracker' => 'omg',
+                    'category' => $doc["#breadcrumb div:nth-child(3) > a > span"]->html());
                 if($this->updateData){
                     $this->db->omg->update(array("slug" => $data["slug"]), $data);
                 }else{
