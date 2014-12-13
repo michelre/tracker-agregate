@@ -27,6 +27,7 @@ class CrawlerCPasBien extends PHPCrawler
 
     public static function crawlNew(){
         $crawler = new self();
+        error_reporting(E_ALL);
         $crawler->setLogger("new-data");
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL("http://www.cpasbien.pe");
@@ -35,7 +36,7 @@ class CrawlerCPasBien extends PHPCrawler
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
-        $crawler->goMultiProcessed(100);
+        $crawler->goMultiProcessed(5);
         $crawler->displayReport($report = $crawler->getProcessReport());
         //$db->cpasbien->execute('ensureIndex({"slug":1}');
     }
@@ -89,11 +90,12 @@ class CrawlerCPasBien extends PHPCrawler
                 $data = array('slug' => $this->slugify($doc[".h2fiche > a"]->html()), 'title' => $doc['.h2fiche > a']->html(),
                     'description' => $doc['#textefiche > p:last']->html(), 'downloadLink' => $doc['#telecharger']->attr('href'),
                     'size' => $doc["#infosficher span:nth-child(2)"]->html(), 'seeds' => $doc["#infosficher .seed_ok"]->html(),
-                    'leechs' => $doc["#infosficher span:last"]->html(), 'url' => $DocInfo->url);
-
+                    'leechs' => $doc["#infosficher span:last"]->html(), 'url' => $DocInfo->url, 'tracker' => 'cpasbien',
+                    'category' => $doc["#ariane a:nth-child(2)"]->html());
                 if($this->updateData){
                     $this->db->cpasbien->update(array("slug" => $data["slug"]), $data);
                 }else{
+                    var_dump($data);
                     $this->db->cpasbien->insert($data);
                 }
             }
