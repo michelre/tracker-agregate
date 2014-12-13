@@ -35,7 +35,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setURL($baseURL);
         $crawler->setRequestDelay(60/100);
         $crawler->addContentTypeReceiveRule("#text/html#");
-        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js)$# i");
+        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
