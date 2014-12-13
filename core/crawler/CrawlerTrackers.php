@@ -6,6 +6,8 @@
  * Time: 20:36
  */
 
+include("libs/PHPCrawler.class.php");
+
 class CrawlerTrackers extends PHPCrawler{
     protected  $db;
     protected  $updateData;

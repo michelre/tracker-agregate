@@ -2,6 +2,7 @@
 
 // Inculde the phpcrawl-mainclass 
 require_once("CrawlerTrackers.php");
+require_once('libs/phpQuery.php');
 
 
 // Extend the class and override the handleDocumentInfo()-method  
