@@ -2,4 +2,4 @@
 
 require_once('core/crawler/CrawlerOMG.php');
 
-CrawlerOMG::crawlNew("http://www.omgtorrent.com");
+CrawlerOMG::crawlNew("http://www.omgtorrent.com", "omg");

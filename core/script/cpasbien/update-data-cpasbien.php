@@ -6,7 +6,7 @@ function crawl($i, $nbRows, $db)
 {
     $collection = new MongoCollection($db, 'cpasbien');
     $cursor = $collection->find(array(), array('url' => true))->limit($nbRows)->skip($i * $nbRows);
-    CrawlerCPasBien::crawlUpdate($db, $cursor);
+    CrawlerCPasBien::crawlUpdate($db, $cursor, "cpasbien");
     exit;
 }
 

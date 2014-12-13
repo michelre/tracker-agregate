@@ -2,4 +2,4 @@
 
 require_once('core/crawler/CrawlerCPasBien.php');
 
-CrawlerCPasBien::crawlNew("http://www.cpasbien.pe");
+CrawlerCPasBien::crawlNew("http://www.cpasbien.pe", "cpasbien");

@@ -25,10 +25,10 @@ class CrawlerTrackers extends PHPCrawler{
         unlink("logs/crawler-process-id.tmp");
     }
 
-    public static function crawlNew($baseURL){
+    public static function crawlNew($baseURL, $tracker){
         $crawler = new self();
         error_reporting(E_ALL);
-        $crawler->setLogger("new-data");
+        $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
         $crawler->addContentTypeReceiveRule("#text/html#");
@@ -41,9 +41,9 @@ class CrawlerTrackers extends PHPCrawler{
         //$db->cpasbien->execute('ensureIndex({"slug":1}');
     }
 
-    public static function crawlUpdate($db, $cursor){
+    public static function crawlUpdate($db, $cursor, $tracker){
         $crawler = new self();
-        $crawler->setLogger("update-data");
+        $crawler->setLogger("update-data", $tracker);
         $crawler->setUpdateData(true);
         $crawler->setDb($db);
         $crawler->addContentTypeReceiveRule("#text/html#");
@@ -81,5 +81,27 @@ class CrawlerTrackers extends PHPCrawler{
 
     public function setUpdateData($updateData){
         $this->updateData = $updateData;
+    }
+
+    public function setLogger($type, $tracker){
+        $date = new DateTime();
+        Logger::configure(array(
+            'rootLogger' => array(
+                'appenders' => array('default'),
+            ),
+            'appenders' => array(
+                'default' => array(
+                    'class' => 'LoggerAppenderFile',
+                    'layout' => array(
+                        'class' => 'LoggerLayoutSimple'
+                    ),
+                    'params' => array(
+                        'file' => 'logs/' . $date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
+                        'append' => true
+                    )
+                )
+            )
+        ));
+        $this->logger = Logger::getLogger("main");
     }
 } 

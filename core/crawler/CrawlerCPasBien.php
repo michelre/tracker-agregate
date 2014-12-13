@@ -39,26 +39,4 @@ class CrawlerCPasBien extends CrawlerTrackers
         flush();
     }
 
-    public function setLogger($type){
-        $date = new DateTime();
-        Logger::configure(array(
-            'rootLogger' => array(
-                'appenders' => array('default'),
-            ),
-            'appenders' => array(
-                'default' => array(
-                    'class' => 'LoggerAppenderFile',
-                    'layout' => array(
-                        'class' => 'LoggerLayoutSimple'
-                    ),
-                    'params' => array(
-                        'file' => 'logs/' . $date->format("Ymd") . '-cpasbien-' . $type . '.log',
-                        'append' => true
-                    )
-                )
-            )
-        ));
-        $this->logger = Logger::getLogger("main");
-    }
-
 }
