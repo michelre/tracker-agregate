@@ -76,7 +76,7 @@ class CrawlerOMG extends PHPCrawler{
                     'description' => $doc['.infos_fiche p']->html(), 'downloadLink' => $doc['#lien_dl']->attr('href'),
                     'size' => $matches[1], 'seeds' => $doc[".sources strong"]->html(),
                     'leechs' => $doc[".clients strong"]->html(), 'url' => $DocInfo->referer_url.$lb, 'tracker' => 'omg',
-                    'category' => $doc["#breadcrumb div:nth-child(4) > a > span"]->html());
+                    'category' => $doc["#breadcrumb div:nth-child(5) > a > span"]->html());
                 if($this->updateData){
                     $this->db->omg->update(array("slug" => $data["slug"]), $data);
                 }else{
