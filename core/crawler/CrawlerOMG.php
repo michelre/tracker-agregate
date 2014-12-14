@@ -34,7 +34,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
-        $crawler->setRequestDelay(60/100);
+        $crawler->setRequestDelay(60/75);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         //ignore forum topics
