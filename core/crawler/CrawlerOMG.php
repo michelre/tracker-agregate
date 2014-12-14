@@ -72,7 +72,7 @@ class CrawlerOMG extends PHPCrawler{
         else $lb = "<br />";
 
         // Print if the content of the document was be recieved or not
-        if ($DocInfo->received == true && $DocInfo->http_status_code == 200 ){
+        if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc["#lien_dl"] != ""){
@@ -90,7 +90,8 @@ class CrawlerOMG extends PHPCrawler{
                 }
             }
         }
-        else if($DocInfo->http_status_code != 200 && $DocInfo->http_status_code != 404){
+        else if((int)$DocInfo->http_status_code == 301){
+            $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             exit(-1);
         }
         else
