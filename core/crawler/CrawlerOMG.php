@@ -36,7 +36,11 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setURL($baseURL);
         $crawler->setRequestDelay(60/100);
         $crawler->addContentTypeReceiveRule("#text/html#");
-        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
+        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js)$# i");
+        //ignore forum topics
+        $crawler->addURLFilterRule("#\.php\?pid=[0-9]*$# i");
+        //ignore download links
+        $crawler->addURLFilterRule("#\.php\?id=[0-9]*# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
@@ -69,7 +73,7 @@ class CrawlerOMG extends PHPCrawler{
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true){
-            $this->logger->info($this->date->format("Y-m-d-H:I") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            $this->logger->info($this->date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc["#lien_dl"] != ""){
                 preg_match("/Taille :<\/strong> (.*)<br><br><img/", $doc[".sl"]->html(), $matches);
@@ -87,7 +91,7 @@ class CrawlerOMG extends PHPCrawler{
             }
         }
         else
-            $this->logger->info($this->date->format("Y-m-d-H:I") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            $this->logger->info($this->date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
         flush();
     }
