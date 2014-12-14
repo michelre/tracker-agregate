@@ -40,7 +40,7 @@ class CrawlerOMG extends PHPCrawler{
         //ignore forum topics
         $crawler->addURLFilterRule("#\.php\?pid=[0-9]*$# i");
         //ignore download links
-        $crawler->addURLFilterRule("#\.php\?id=[0-9]*# i");
+        $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
