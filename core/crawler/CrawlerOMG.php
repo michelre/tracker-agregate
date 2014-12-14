@@ -36,7 +36,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setURL($baseURL);
         $crawler->setRequestDelay(60/100);
         $crawler->addContentTypeReceiveRule("#text/html#");
-        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js)$# i");
+        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         //ignore forum topics
         $crawler->addURLFilterRule("#\.php\?pid=[0-9]*$# i");
         //ignore download links
