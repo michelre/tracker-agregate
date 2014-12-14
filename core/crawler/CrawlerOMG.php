@@ -14,6 +14,7 @@ class CrawlerOMG extends PHPCrawler{
     protected  $db;
     protected  $updateData;
     protected  $logger;
+    protected  $date;
 
     private function displayReport($report){
         if (PHP_SAPI == "cli") $lb = "\n";
@@ -68,7 +69,7 @@ class CrawlerOMG extends PHPCrawler{
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true){
-            $this->logger->info("Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            $this->logger->info($this->date->format("Y-m-d-H:I") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc["#lien_dl"] != ""){
                 preg_match("/Taille :<\/strong> (.*)<br><br><img/", $doc[".sl"]->html(), $matches);
@@ -86,7 +87,7 @@ class CrawlerOMG extends PHPCrawler{
             }
         }
         else
-            $this->logger->info("Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            $this->logger->info($this->date->format("Y-m-d-H:I") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
         flush();
     }
@@ -118,7 +119,7 @@ class CrawlerOMG extends PHPCrawler{
     }
 
     public function setLogger($type, $tracker){
-        $date = new DateTime();
+        $this->date = new DateTime();
         Logger::configure(array(
             'rootLogger' => array(
                 'appenders' => array('default'),
@@ -130,7 +131,7 @@ class CrawlerOMG extends PHPCrawler{
                         'class' => 'LoggerLayoutSimple'
                     ),
                     'params' => array(
-                        'file' => 'logs/' . $date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
+                        'file' => 'logs/' . $this->date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
                         'append' => true
                     )
                 )
