@@ -66,6 +66,7 @@ class CrawlerOMG extends PHPCrawler{
 
     function handleDocumentInfo($DocInfo)
     {
+        $date = new DateTime();
         // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
@@ -73,7 +74,7 @@ class CrawlerOMG extends PHPCrawler{
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true){
-            $this->logger->info($this->date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc["#lien_dl"] != ""){
                 preg_match("/Taille :<\/strong> (.*)<br><br><img/", $doc[".sl"]->html(), $matches);
@@ -91,7 +92,7 @@ class CrawlerOMG extends PHPCrawler{
             }
         }
         else
-            $this->logger->info($this->date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
         flush();
     }
