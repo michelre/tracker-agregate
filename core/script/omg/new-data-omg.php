@@ -9,7 +9,7 @@ function killallProcesses(){
     exec("ps -ef | grep 'php -f'", $result);
     array_map(function($process){
         preg_match_all("/\w+/", $process, $processStatus);
-        posix_kill((int)$processStatus[0][1], SIGTERM);
+        posix_kill((int)$processStatus[0][1], SIGKILL);
     }, $result);
 }
 
