@@ -13,7 +13,7 @@ function killallProcesses(){
     }, $result);
 }
 
-//killallProcesses();
+killallProcesses();
 
 $proxy = getProxy();
 

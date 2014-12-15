@@ -47,7 +47,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
-        $crawler->goMultiProcessed(3);
+        $crawler->goMultiProcessed(7);
         $crawler->displayReport($report = $crawler->getProcessReport());
     }
 
