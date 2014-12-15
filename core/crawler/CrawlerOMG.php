@@ -15,6 +15,7 @@ class CrawlerOMG extends PHPCrawler{
     protected  $updateData;
     protected  $logger;
     protected  $date;
+    protected  $processId;
 
     private function displayReport($report){
         if (PHP_SAPI == "cli") $lb = "\n";
@@ -28,13 +29,15 @@ class CrawlerOMG extends PHPCrawler{
         unlink("logs/crawler-process-id.tmp");
     }
 
-    public static function crawlNew($baseURL, $tracker){
+    public static function crawlNew($baseURL, $tracker, $proxyURL, $proxyPort){
         $crawler = new self();
         error_reporting(E_ALL);
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
-        $crawler->setRequestDelay(60/75);
+        $crawler->setConnectionTimeout(30);
+        $crawler->setStreamTimeout(30);
+        $crawler->setProxy($proxyURL, $proxyPort);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         //ignore forum topics
@@ -85,7 +88,6 @@ class CrawlerOMG extends PHPCrawler{
                 if($this->updateData){
                     $this->db->omg->update(array("slug" => $data["slug"]), $data);
                 }else{
-                    var_dump($data);
                     $this->db->omg->insert($data);
                 }
             }

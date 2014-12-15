@@ -79,7 +79,6 @@ class CrawlerCPasBien extends PHPCrawler{
                 if($this->updateData){
                     $this->db->cpasbien->update(array("slug" => $data["slug"]), $data);
                 }else{
-                    var_dump($data);
                     $this->db->cpasbien->insert($data);
                 }
             }
