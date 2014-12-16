@@ -94,12 +94,20 @@ class CrawlerOMG extends PHPCrawler{
         }
         else if((int)$DocInfo->http_status_code == 301){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-            die();
+            $this->killallProcesses();
         }
         else
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
         flush();
+    }
+
+    private function killallProcesses(){
+        exec("ps -ef | grep 'php -f'", $result);
+        array_map(function($process){
+            preg_match_all("/\w+/", $process, $processStatus);
+            posix_kill((int)$processStatus[0][1], SIGKILL);
+        }, $result);
     }
 
     function initChildProcess(){
