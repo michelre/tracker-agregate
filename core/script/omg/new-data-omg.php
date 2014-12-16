@@ -13,8 +13,8 @@ function killallProcesses(){
     }, $result);
 }
 
-//killallProcesses();
+killallProcesses();
 
-$proxy = getProxy();
-
-CrawlerOMG::crawlNew("http://www.omgtorrent.com", "omg", $proxy["ip"], $proxy["port"]);
+$proxy = getProxy("http://www.omgtorrent.com");
+if($proxy)
+    CrawlerOMG::crawlNew("http://www.omgtorrent.com", "omg", $proxy["ip"], $proxy["port"]);

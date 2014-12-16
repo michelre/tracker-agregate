@@ -94,7 +94,7 @@ class CrawlerOMG extends PHPCrawler{
         }
         else if((int)$DocInfo->http_status_code == 301){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-            exit(-1);
+            die();
         }
         else
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
