@@ -35,9 +35,8 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
-        $crawler->setConnectionTimeout(30);
-        $crawler->setStreamTimeout(30);
-        $crawler->setProxy($proxyURL, $proxyPort);
+        $crawler->setRequestDelay(60/100);
+	$crawler->setProxy($proxyURL, $proxyPort);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         //ignore forum topics
@@ -94,7 +93,7 @@ class CrawlerOMG extends PHPCrawler{
         }
         else if((int)$DocInfo->http_status_code == 301){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-            $this->killallProcesses();
+            //$this->killallProcesses();
         }
         else
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
