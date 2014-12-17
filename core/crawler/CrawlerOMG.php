@@ -35,8 +35,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
-        $crawler->setConnectionTimeout(30);
-        $crawler->setStreamTimeout(30);
+        $crawler->setRequestDelay(60/100);
         $crawler->setProxy($proxyURL, $proxyPort);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
@@ -47,7 +46,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
-        $crawler->goMultiProcessed(7);
+        $crawler->goMultiProcessed(3);
         $crawler->displayReport($report = $crawler->getProcessReport());
     }
 
@@ -83,7 +82,20 @@ class CrawlerOMG extends PHPCrawler{
                 $data = array('slug' => $this->slugify($doc["#corps h1"]->html()), 'title' => $doc["#corps h1"]->html(),
                     'description' => $doc['.infos_fiche p']->html(), 'downloadLink' => $doc['#lien_dl']->attr('href'),
                     'size' => $matches[1], 'seeds' => $doc[".sources strong"]->html(),
-                    'leechs' => $doc[".clients strong"]->html(), 'url' => $DocInfo->referer_url.$lb, 'tracker' => 'omg',
+                    'leechs' => $doc[".clients strong"]->html(), 'url' => $DocInfo->url, 'tracker' => 'omg',
+                    'category' => $doc["#breadcrumb div:nth-child(5) > a > span"]->html());
+                if($this->updateData){
+                    $this->db->omg->update(array("slug" => $data["slug"]), $data);
+                }else{
+                    $this->db->omg->insert($data);
+                }
+            }
+            if($doc[".serie_saison"] != ""){
+                $title = $doc["#corps h1"]->html() . ' - ' . $doc["#breadcrumb div"]->filter(":last")->find("span")->html();
+                $data = array('slug' => $this->slugify($title), 'title' => $title,
+                    'description' => $doc['.infos_fiche p']->html(), 'downloadLink' => $doc['.serie_saison > a']->attr('href'),
+                    'size' => "", 'seeds' => "",
+                    'leechs' => "", 'url' => $DocInfo->url, 'tracker' => 'omg',
                     'category' => $doc["#breadcrumb div:nth-child(5) > a > span"]->html());
                 if($this->updateData){
                     $this->db->omg->update(array("slug" => $data["slug"]), $data);
