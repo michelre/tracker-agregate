@@ -79,9 +79,12 @@ class CrawlerKickass extends PHPCrawler{
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc[".verifTorrentButton"] != ""){
                 $category = rtrim($doc[".dataList ul:nth-child(1) > li:nth-child(1) > strong"]->html(), ":");
-                $size = preg_match("/Size:(.*)<span>(.*)<\/span>/", $doc[".folderopen"], $sizeMatches);
+                preg_match("/Size:(.*)<span>(.*)<\/span>/", $doc[".folderopen"], $sizeMatches);
+                preg_match("/^(.*)<br>/", trim($doc['#summary > div:nth-child(1)']->html()), $descriptionMatch);
+
+
                 $data = array('slug' => $this->slugify($doc[".novertmarg > a > span"]->html()), 'title' => $doc[".novertmarg > a > span"]->html(),
-                    'description' => $doc['#summary > div:nth-child(1)']->html(), 'downloadLink' => $doc['a.verifTorrentButton']->attr('href'),
+                    'description' => $descriptionMatch[1], 'downloadLink' => $doc['a.verifTorrentButton']->attr('href'),
                     'size' => $sizeMatches[1] . ' ' . $sizeMatches[2], 'seeds' => $doc[".seedBlock strong"]->html(),
                     'leechs' => $doc[".leechBlock strong"]->html(), 'url' => $DocInfo->url, 'tracker' => 'kickass',
                     'category' => $category);
