@@ -10,7 +10,7 @@ require_once("libs/php-crawl/PHPCrawler.class.php");
 require_once('libs/log4php/main/php/Logger.php');
 require_once('libs/php-query/phpQuery.php');
 
-class CrawlerOMG extends PHPCrawler{
+class CrawlerKickass extends PHPCrawler{
     protected  $db;
     protected  $updateData;
     protected  $logger;
@@ -36,7 +36,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
         $crawler->setRequestDelay(60/100);
-        $crawler->setProxy($proxyURL, $proxyPort);
+        //$crawler->setProxy($proxyURL, $proxyPort);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         //ignore forum topics
@@ -45,7 +45,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
-        (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
+        (!file_exists("logs/crawler-process-id-kickass.tmp")) ? file_put_contents("logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id-kickass.tmp"));
         $crawler->goMultiProcessed(3);
         $crawler->displayReport($report = $crawler->getProcessReport());
     }
@@ -77,30 +77,18 @@ class CrawlerOMG extends PHPCrawler{
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
-            if($doc["#lien_dl"] != ""){
-                preg_match("/Taille :<\/strong> (.*)<br><br><img/", $doc[".sl"]->html(), $matches);
-                $data = array('slug' => $this->slugify($doc["#corps h1"]->html()), 'title' => $doc["#corps h1"]->html(),
-                    'description' => $doc['.infos_fiche p']->html(), 'downloadLink' => $doc['#lien_dl']->attr('href'),
-                    'size' => $matches[1], 'seeds' => $doc[".sources strong"]->html(),
-                    'leechs' => $doc[".clients strong"]->html(), 'url' => $DocInfo->url, 'tracker' => 'omg',
-                    'category' => $doc["#breadcrumb div:nth-child(5) > a > span"]->html());
+            if($doc[".verifTorrentButton"] != ""){
+                $category = rtrim($doc[".dataList ul:nth-child(1) > li:nth-child(1) > strong"]->html(), ":");
+                $size = preg_match("/Size:(.*)<span>(.*)<\/span>/", $doc[".folderopen"], $sizeMatches);
+                $data = array('slug' => $this->slugify($doc[".novertmarg > a > span"]->html()), 'title' => $doc[".novertmarg > a > span"]->html(),
+                    'description' => $doc['#summary > div:nth-child(1)']->html(), 'downloadLink' => $doc['a.verifTorrentButton']->attr('href'),
+                    'size' => $sizeMatches[1] . ' ' . $sizeMatches[2], 'seeds' => $doc[".seedBlock strong"]->html(),
+                    'leechs' => $doc[".leechBlock strong"]->html(), 'url' => $DocInfo->url, 'tracker' => 'kickass',
+                    'category' => $category);
                 if($this->updateData){
-                    $this->db->omg->update(array("slug" => $data["slug"]), $data);
+                    $this->db->kickass->update(array("slug" => $data["slug"]), $data);
                 }else{
-                    $this->db->omg->insert($data);
-                }
-            }
-            if($doc[".serie_saison"] != ""){
-                $title = $doc["#corps h1"]->html() . ' - ' . $doc["#breadcrumb div"]->filter(":last")->find("span")->html();
-                $data = array('slug' => $this->slugify($title), 'title' => $title,
-                    'description' => $doc['.infos_fiche p']->html(), 'downloadLink' => $doc['.serie_saison > a']->attr('href'),
-                    'size' => "", 'seeds' => "",
-                    'leechs' => "", 'url' => $DocInfo->url, 'tracker' => 'omg',
-                    'category' => $doc["#breadcrumb div:nth-child(5) > a > span"]->html());
-                if($this->updateData){
-                    $this->db->omg->update(array("slug" => $data["slug"]), $data);
-                }else{
-                    $this->db->omg->insert($data);
+                    $this->db->kickass->insert($data);
                 }
             }
         }
