@@ -137,7 +137,7 @@ class CrawlerKickass extends PHPCrawler{
                         'class' => 'LoggerLayoutSimple'
                     ),
                     'params' => array(
-                        'file' => 'logs/' . $this->date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
+                        'file' => __DIR__.'/../../logs/' . $this->date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
                         'append' => true
                     )
                 )
