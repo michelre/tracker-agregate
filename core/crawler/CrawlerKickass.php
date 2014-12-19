@@ -29,24 +29,18 @@ class CrawlerKickass extends PHPCrawler{
         unlink("logs/crawler-process-id.tmp");
     }
 
-    public static function crawlNew($baseURL, $tracker, $proxyURL, $proxyPort){
+    public static function crawlNew($baseURL, $tracker){
         $crawler = new self();
         error_reporting(E_ALL);
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
-        $crawler->setRequestDelay(60/100);
-        //$crawler->setProxy($proxyURL, $proxyPort);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
-        //ignore forum topics
-        $crawler->addURLFilterRule("#\.php\?pid=[0-9]*$# i");
-        //ignore download links
-        $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists("logs/crawler-process-id-kickass.tmp")) ? file_put_contents("logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id-kickass.tmp"));
-        $crawler->goMultiProcessed(3);
+        $crawler->goMultiProcessed(7);
         $crawler->displayReport($report = $crawler->getProcessReport());
     }
 
@@ -79,9 +73,12 @@ class CrawlerKickass extends PHPCrawler{
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc[".verifTorrentButton"] != ""){
                 $category = rtrim($doc[".dataList ul:nth-child(1) > li:nth-child(1) > strong"]->html(), ":");
-                $size = preg_match("/Size:(.*)<span>(.*)<\/span>/", $doc[".folderopen"], $sizeMatches);
+                preg_match("/Size:(.*)<span>(.*)<\/span>/", $doc[".folderopen"], $sizeMatches);
+                preg_match("/^(.*)<br>/", trim($doc['#summary > div:nth-child(1)']->html()), $descriptionMatch);
+
+
                 $data = array('slug' => $this->slugify($doc[".novertmarg > a > span"]->html()), 'title' => $doc[".novertmarg > a > span"]->html(),
-                    'description' => $doc['#summary > div:nth-child(1)']->html(), 'downloadLink' => $doc['a.verifTorrentButton']->attr('href'),
+                    'description' => $descriptionMatch[1], 'downloadLink' => $doc['a.verifTorrentButton']->attr('href'),
                     'size' => $sizeMatches[1] . ' ' . $sizeMatches[2], 'seeds' => $doc[".seedBlock strong"]->html(),
                     'leechs' => $doc[".leechBlock strong"]->html(), 'url' => $DocInfo->url, 'tracker' => 'kickass',
                     'category' => $category);
