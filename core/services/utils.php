@@ -28,9 +28,10 @@ function proxyWorks($ip, $port, $website){
 }
 
 function retrieveCorrectProxy($proxies, $webiste){
+    $date = new DateTime();
     foreach($proxies as $proxy){
         preg_match("#^(.*):(.*)$#", $proxy, $proxyConst);
-        $p = array("ip" => $proxyConst[1], "port" => $proxyConst[2]);
+        $p = array("ip" => $proxyConst[1], "port" => $proxyConst[2], "$date" => $date->format("Ymd-H:i"));
         if(proxyWorks($p["ip"], $p["port"], $webiste)){
             return $p;
         }
