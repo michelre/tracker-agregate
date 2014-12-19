@@ -39,7 +39,7 @@ class CrawlerKickass extends PHPCrawler{
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
-        (!file_exists("logs/crawler-process-id-kickass.tmp")) ? file_put_contents("logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id-kickass.tmp"));
+        (!file_exists(__DIR__."/../../logs/crawler-process-id-kickass.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp"));
         $crawler->goMultiProcessed(7);
         $crawler->displayReport($report = $crawler->getProcessReport());
     }
