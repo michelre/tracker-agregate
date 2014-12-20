@@ -35,9 +35,14 @@ class CrawlerKickass extends PHPCrawler{
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
-        $crawler->setFollowMode(3);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
+        $crawler->addURLFilterRule("#https:\/\/kickass.so\/blog\/# i");
+        $crawler->addURLFilterRule("#https:\/\/kickass.so\/user\/# i");
+        $crawler->addURLFilterRule("#https:\/\/kickass.so\/community\/# i");
+        $crawler->addURLFilterRule("#https:\/\/kickass.so\/faq\/# i");
+        $crawler->addURLFilterRule("#https:\/\/kickass.so\/auth\/# i");
+
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
         (!file_exists(__DIR__."/../../logs/crawler-process-id-kickass.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp"));
