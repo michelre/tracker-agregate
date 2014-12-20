@@ -35,6 +35,7 @@ class CrawlerKickass extends PHPCrawler{
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
+        $crawler->setFollowMode(3);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         $crawler->enableCookieHandling(true);
