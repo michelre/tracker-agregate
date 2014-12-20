@@ -2,7 +2,10 @@ var Crawler = require("crawler");
 var url = require('url');
 var fs = require('fs');
 var parse = require('csv-parse');
-var slug = require('slug')
+var slug = require('slug');
+var MongoClient = require('mongodb').MongoClient;
+
+var url = 'mongodb://localhost:27017/torrents';
 
 var c = new Crawler({
     maxConnections : 10,
@@ -22,11 +25,13 @@ var c = new Crawler({
             "tracker": "kickass",
             "category": ""
         }
-        fs.writeFile("logs/"+d.getFullYear()+ d.getMonth()+d.getDate()+"-kickass.log", d.toDateString() + " " + d.toLocaleTimeString() + " - " + result.uri + "\n", null);
+        MongoClient.connect(url, function(err, db) {
+            insertDocuments(db, data);
+            fs.writeFile("logs/"+d.getFullYear()+ d.getMonth()+d.getDate()+"-kickass.log", d.toDateString() + " " + d.toLocaleTimeString() + " - " + result.uri + "\n", null);
+            db.close();
+        });
     }
 });
-
-var links = [];
 
 var parser = parse({delimiter: '\n'})
 var rs = fs.createReadStream('data/kickass/kickass_links.csv');
@@ -43,3 +48,8 @@ rs.on('error', function(err) {
 rs.on('end', function(){
     fs.writeFile("logs/"+d.getFullYear()+ d.getMonth()+d.getDate()+"-kickass.log", d.toDateString() + " " + d.toLocaleTimeString() + " END...\n", null);
 })
+
+var insertDocuments = function(db, data) {
+    var collection = db.collection('kickass');
+    collection.insert(data, function(){});
+}
