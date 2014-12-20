@@ -42,6 +42,7 @@ class CrawlerKickass extends PHPCrawler{
         $crawler->addURLFilterRule("#https:\/\/kickass.so\/community\/# i");
         $crawler->addURLFilterRule("#https:\/\/kickass.so\/faq\/# i");
         $crawler->addURLFilterRule("#https:\/\/kickass.so\/auth\/# i");
+	$crawler->addURLFilterRule("#https:\/\/kickass.so\/movies\/actor\/# i");
 
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
