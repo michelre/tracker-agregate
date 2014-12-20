@@ -36,10 +36,9 @@ var c = new Crawler({
 var parser = parse({delimiter: '\n'})
 var rs = fs.createReadStream('data/kickass/kickass_links.csv');
 rs.on('data', function(chunk) {
-    console.log(chunk.toString())
-        /*parse(chunk.toString(), null, function(err, output){
-            c.queue(output);
-        });*/
+    parse(chunk.toString(), null, function(err, output){
+        c.queue(output);
+    });
 })
 
 rs.on('error', function(err) {
