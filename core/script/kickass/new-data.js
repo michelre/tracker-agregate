@@ -14,10 +14,10 @@ var c = new Crawler({
         var d = new Date();
         var title = $("h1 span").html();
         var data = {
-            "slug": slug(title).toLowerCase(),
+            "slug": (title) ? slug(title).toLowerCase() : "",
             "title": title,
             "description" : $("#summary > div:first-child").html(),
-            "downloadLink": $("a[title='Download verified torrent file']").attr("href"),
+            "downloadLink": ($("a[title='Download verified torrent file']")) ? $("a[title='Download verified torrent file']").attr("href") : "",
             "size": $(".torFileSize").html(),
             "seeds": $("strong[itemprop='seeders']").html(),
             "leechs": $("strong[itemprop='leechers']").html(),
@@ -36,9 +36,10 @@ var c = new Crawler({
 var parser = parse({delimiter: '\n'})
 var rs = fs.createReadStream('data/kickass/kickass_links.csv');
 rs.on('data', function(chunk) {
-    parse(chunk.toString(), null, function(err, output){
-        c.queue(output);
-    });
+    console.log(chunk.toString())
+        /*parse(chunk.toString(), null, function(err, output){
+            c.queue(output);
+        });*/
 })
 
 rs.on('error', function(err) {
