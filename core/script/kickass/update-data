@@ -8,14 +8,14 @@ NB_PROCESSES=2
 $(rm -rf $DATA_DIR/*)
 
 #Downloading and decompressing data
-$(wget --no-check-certificate https://kickass.so/dailydump.txt.gz && gzip --uncompres *.gz && mv *.txt $DATA_DIR && rm -rf *.gz)
+$(wget --no-check-certificate https://kickass.so/hourlydump.txt.gz && gzip --uncompres hourlydump.txt.gz && mv hourlydump.txt $DATA_DIR && rm -rf hourlydump.txt.gz)
 
 #Splitting file
-NB_LINES=$(cat $DATA_DIR/*.txt | wc -l)
+NB_LINES=$(cat $DATA_DIR/hourlydump.txt | wc -l)
 NB_LINES_PER_PROCESS=$((NB_LINES/NB_PROCESSES))
-$(cd $DATA_DIR && mkdir tmp && cd tmp && split -l $NB_LINES_PER_PROCESS ../*.txt)
+$(cd $DATA_DIR && mkdir tmp-daily && cd tmp-daily && split -l $NB_LINES_PER_PROCESS ../hourlydump.txt)
 
 #Spawing processes
-for f in $DATA_DIR/tmp/*; do
+for f in $DATA_DIR/tmp-daily/*; do
     php -f $SCRIPT_DIR/new-data.php $f &
 done
