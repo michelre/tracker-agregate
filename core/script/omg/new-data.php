@@ -1,9 +1,7 @@
 <?php
 
-require_once('core/crawler/CrawlerOMG.php');
-require_once('core/services/utils.php');
-//require_once('../../../libs/php-query/phpQuery.php');
-//require_once('../../../core/services/utils.php');
+require_once(__DIR__.'/../../crawler/CrawlerOMG.php');
+require_once(__DIR__.'/../../services/utils.php');
 
 $proxy = getProxy("http://www.omgtorrent.com");
 if($proxy)
