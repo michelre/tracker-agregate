@@ -26,7 +26,7 @@ class CrawlerOMG extends PHPCrawler{
         $this->logger->info("Documents received: ".$report->files_received.$lb);
         $this->logger->info("Bytes received: ".$report->bytes_received." bytes".$lb);
         $this->logger->info("Process runtime: ".$report->process_runtime." sec".$lb);
-        unlink("logs/crawler-process-id.tmp");
+        unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
     }
 
     public static function crawlNew($baseURL, $tracker, $proxyURL, $proxyPort){
@@ -45,7 +45,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
         $crawler->enableCookieHandling(true);
         $crawler->enableResumption();
-        (!file_exists("logs/crawler-process-id.tmp")) ? file_put_contents("logs/crawler-process-id.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents("logs/crawler-process-id.tmp"));
+        (!file_exists(__DIR__."/../../logs/crawler-process-id-omg.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp"));
         $crawler->goMultiProcessed(3);
         $crawler->displayReport($report = $crawler->getProcessReport());
     }
@@ -152,7 +152,7 @@ class CrawlerOMG extends PHPCrawler{
                         'class' => 'LoggerLayoutSimple'
                     ),
                     'params' => array(
-                        'file' => 'logs/' . $this->date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
+                        'file' => __DIR__.'/../../logs/' . $this->date->format("Ymd") . '-' . $tracker . '-' . $type . '.log',
                         'append' => true
                     )
                 )
