@@ -8,3 +8,5 @@ require_once('core/services/utils.php');
 $proxy = getProxy("http://www.omgtorrent.com");
 if($proxy)
     CrawlerOMG::crawlNew("http://www.omgtorrent.com", "omg", $proxy["ip"], $proxy["port"]);
+else
+    exit(-1);
