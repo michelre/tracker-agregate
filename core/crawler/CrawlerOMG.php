@@ -6,9 +6,9 @@
  * Time: 20:36
  */
 
-require_once("libs/php-crawl/PHPCrawler.class.php");
-require_once('libs/log4php/main/php/Logger.php');
-require_once('libs/php-query/phpQuery.php');
+require_once(__DIR__."/../../libs/php-crawl/PHPCrawler.class.php");
+require_once(__DIR__.'/../../libs/log4php/main/php/Logger.php');
+require_once(__DIR__.'/../../libs/php-query/phpQuery.php');
 
 class CrawlerOMG extends PHPCrawler{
     protected  $db;
