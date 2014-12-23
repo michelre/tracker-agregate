@@ -16,6 +16,7 @@ class CrawlerOMG extends PHPCrawler{
     protected  $logger;
     protected  $date;
     protected  $processId;
+    protected  $nbErrors;
 
     private function displayReport($report){
         if (PHP_SAPI == "cli") $lb = "\n";
@@ -33,6 +34,7 @@ class CrawlerOMG extends PHPCrawler{
         $crawler = new self();
         error_reporting(E_ALL);
         $crawler->setLogger("new-data", $tracker);
+        $crawler->nbErrors = 0;
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
         $crawler->setURL($baseURL);
         $crawler->setRequestDelay(60/100);
@@ -72,9 +74,12 @@ class CrawlerOMG extends PHPCrawler{
         // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
+        if($this->nbErrors > 10)
+            exit(-1);
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
+            $this->nbErrors = 0;
             $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc["#lien_dl"] != ""){
@@ -105,9 +110,11 @@ class CrawlerOMG extends PHPCrawler{
             }
         }
         else if((int)$DocInfo->http_status_code == 301){
+            $this->nbErrors += 1;
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
         }
         else
+            $this->nbErrors += 1;
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
         flush();
