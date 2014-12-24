@@ -57,6 +57,7 @@ class CrawlerOMG extends PHPCrawler{
             throw $e;
         }
         $crawler->displayReport($report = $crawler->getProcessReport());
+        return $crawler->getProcessReport()->user_abort;
     }
 
     public static function crawlUpdate($db, $cursor, $tracker){
