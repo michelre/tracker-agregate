@@ -27,8 +27,7 @@ class CrawlerOMG extends PHPCrawler{
         $this->logger->info("Documents received: ".$report->files_received.$lb);
         $this->logger->info("Bytes received: ".$report->bytes_received." bytes".$lb);
         $this->logger->info("Process runtime: ".$report->process_runtime." sec".$lb);
-        if($this->nbErrors >= 10)
-            unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
+        unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
     }
 
     public static function crawlNew($baseURL, $tracker, $proxyURL, $proxyPort){
@@ -80,7 +79,7 @@ class CrawlerOMG extends PHPCrawler{
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
         if($this->nbErrors > 10)
-            return -1;
+            throw new Exception();
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
@@ -113,10 +112,6 @@ class CrawlerOMG extends PHPCrawler{
                     $this->db->omg->insert($data);
                 }
             }
-        }
-        else if((int)$DocInfo->http_status_code == 200){
-            $this->nbErrors = 0;
-            $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
         }
         else if((int)$DocInfo->http_status_code == 301){
             $this->nbErrors += 1;
