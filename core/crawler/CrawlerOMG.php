@@ -47,8 +47,12 @@ class CrawlerOMG extends PHPCrawler{
             $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
             $crawler->enableCookieHandling(true);
             $crawler->enableResumption();
-            (!file_exists(__DIR__."/../../logs/crawler-process-id-omg.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp"));
-            $crawler->goMultiProcessed(3);
+            exec("find /tmp/ -type d ! -name 'phpcrawl_tmp_" . $crawler->getCrawlerId() ."' -delete");
+            if(!file_exists(__DIR__."/../../logs/crawler-process-id-omg.tmp"))
+                file_put_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp", $crawler->getCrawlerId());
+            else
+                $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp"));
+            //$crawler->goMultiProcessed(3);
         }catch (Exception $e){
             throw $e;
         }
