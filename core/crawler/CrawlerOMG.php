@@ -81,9 +81,9 @@ class CrawlerOMG extends PHPCrawler{
         // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
-        //if($this->nbErrors > 10){
+        if($this->nbErrors > 10){
             return -1;
-        //}
+        }
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
