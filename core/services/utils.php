@@ -53,7 +53,8 @@ function getProxy($website){
         }
     })->get();
     $proxy = retrieveCorrectProxy($proxies, $website);
-    addUsedProxy($proxy);
+    if($proxy != null)
+        addUsedProxy($proxy);
 
     return $proxy;
 }

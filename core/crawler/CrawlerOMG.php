@@ -27,7 +27,8 @@ class CrawlerOMG extends PHPCrawler{
         $this->logger->info("Documents received: ".$report->files_received.$lb);
         $this->logger->info("Bytes received: ".$report->bytes_received." bytes".$lb);
         $this->logger->info("Process runtime: ".$report->process_runtime." sec".$lb);
-        unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
+        if(!$report->user_abort)
+            unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
     }
 
     public static function crawlNew($baseURL, $tracker, $proxyURL, $proxyPort){
@@ -47,17 +48,15 @@ class CrawlerOMG extends PHPCrawler{
             $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
             $crawler->enableCookieHandling(true);
             $crawler->enableResumption();
-            exec("find /tmp/ -type d ! -name 'phpcrawl_tmp_" . $crawler->getCrawlerId() ."' -delete");
             if(!file_exists(__DIR__."/../../logs/crawler-process-id-omg.tmp"))
                 file_put_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp", $crawler->getCrawlerId());
             else
                 $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp"));
-            //$crawler->goMultiProcessed(3);
+            $crawler->goMultiProcessed(3);
         }catch (Exception $e){
             throw $e;
         }
         $crawler->displayReport($report = $crawler->getProcessReport());
-        exit(0);
     }
 
     public static function crawlUpdate($db, $cursor, $tracker){
@@ -72,7 +71,7 @@ class CrawlerOMG extends PHPCrawler{
             $crawler->setURL($obj["url"]);
             $crawler->go();
             $report = $crawler->getProcessReport();
-            $crawler->displayReport($report);
+            //$crawler->displayReport($report);
         }
     }
 
@@ -82,8 +81,9 @@ class CrawlerOMG extends PHPCrawler{
         // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
-        if($this->nbErrors > 10)
-            throw new Exception();
+        //if($this->nbErrors > 10){
+            return -1;
+        //}
 
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
