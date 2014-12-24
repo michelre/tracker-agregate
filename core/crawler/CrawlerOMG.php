@@ -27,29 +27,34 @@ class CrawlerOMG extends PHPCrawler{
         $this->logger->info("Documents received: ".$report->files_received.$lb);
         $this->logger->info("Bytes received: ".$report->bytes_received." bytes".$lb);
         $this->logger->info("Process runtime: ".$report->process_runtime." sec".$lb);
-        unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
+        if($this->nbErrors >= 10)
+            unlink(__DIR__.'/../../logs/crawler-process-id-omg.tmp');
     }
 
     public static function crawlNew($baseURL, $tracker, $proxyURL, $proxyPort){
         $crawler = new self();
-        error_reporting(E_ALL);
-        $crawler->setLogger("new-data", $tracker);
-        $crawler->nbErrors = 0;
-        $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
-        $crawler->setURL($baseURL);
-        $crawler->setRequestDelay(60/100);
-        $crawler->setProxy($proxyURL, $proxyPort);
-        $crawler->addContentTypeReceiveRule("#text/html#");
-        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
-        //ignore forum topics
-        $crawler->addURLFilterRule("#\.php\?pid=[0-9]*$# i");
-        //ignore download links
-        $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
-        $crawler->enableCookieHandling(true);
-        $crawler->enableResumption();
-        (!file_exists(__DIR__."/../../logs/crawler-process-id-omg.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp"));
-        $crawler->goMultiProcessed(3);
+        try{
+            $crawler->setLogger("new-data", $tracker);
+            $crawler->nbErrors = 0;
+            $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
+            $crawler->setURL($baseURL);
+            $crawler->setRequestDelay(60/100);
+            $crawler->setProxy($proxyURL, $proxyPort);
+            $crawler->addContentTypeReceiveRule("#text/html#");
+            $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
+            //ignore forum topics
+            $crawler->addURLFilterRule("#\.php\?pid=[0-9]*$# i");
+            //ignore download links
+            $crawler->addURLFilterRule("#\.php\?id=[0-9]*$# i");
+            $crawler->enableCookieHandling(true);
+            $crawler->enableResumption();
+            (!file_exists(__DIR__."/../../logs/crawler-process-id-omg.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-omg.tmp"));
+            $crawler->goMultiProcessed(3);
+        }catch (Exception $e){
+            throw $e;
+        }
         $crawler->displayReport($report = $crawler->getProcessReport());
+        exit(0);
     }
 
     public static function crawlUpdate($db, $cursor, $tracker){
@@ -74,7 +79,7 @@ class CrawlerOMG extends PHPCrawler{
         // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
-        if($this->nbErrors > 20)
+        if($this->nbErrors > 10)
             return -1;
 
         // Print if the content of the document was be recieved or not
@@ -108,6 +113,10 @@ class CrawlerOMG extends PHPCrawler{
                     $this->db->omg->insert($data);
                 }
             }
+        }
+        else if((int)$DocInfo->http_status_code == 200){
+            $this->nbErrors = 0;
+            $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
         }
         else if((int)$DocInfo->http_status_code == 301){
             $this->nbErrors += 1;
