@@ -1,16 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: remimichel
- * Date: 13/12/14
- * Time: 20:36
- */
 
 require_once(__DIR__."/../../libs/php-crawl/PHPCrawler.class.php");
 require_once(__DIR__.'/../../libs/log4php/main/php/Logger.php');
 require_once(__DIR__.'/../../libs/php-query/phpQuery.php');
 
-class CrawlerKickass extends PHPCrawler{
+class CrawlerSmartorrent extends PHPCrawler{
     protected  $db;
     protected  $updateData;
     protected  $logger;
@@ -26,7 +20,7 @@ class CrawlerKickass extends PHPCrawler{
         $this->logger->info("Documents received: ".$report->files_received.$lb);
         $this->logger->info("Bytes received: ".$report->bytes_received." bytes".$lb);
         $this->logger->info("Process runtime: ".$report->process_runtime." sec".$lb);
-        unlink("logs/crawler-process-id-kickass.tmp");
+        unlink(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp");
     }
 
     public static function crawlNew($baseURL, $tracker){
@@ -37,14 +31,16 @@ class CrawlerKickass extends PHPCrawler{
         $crawler->setURL($baseURL);
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
-        $crawler->addURLFilterRule("#https:\/\/kickass.so\/blog\/# i");
-        $crawler->addURLFilterRule("#https:\/\/kickass.so\/user\/# i");
-        $crawler->addURLFilterRule("#https:\/\/kickass.so\/community\/# i");
-        $crawler->addURLFilterRule("#https:\/\/kickass.so\/faq\/# i");
-        $crawler->addURLFilterRule("#https:\/\/kickass.so\/auth\/# i");
-	    $crawler->addURLFilterRule("#https:\/\/kickass.so\/movies\/actor\/# i");
+        $crawler->addURLFilterRule("#http:\/\/smartorrent.com\/dmca\/# i");
+        $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/user\/# i");
+        $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/forum\/# i");
+        $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/faq\/# i");
+        $crawler->addURLFilterRule("#fichiers\/$# i");
+        $crawler->addURLFilterRule("#similaires\/$# i");
+        $crawler->addURLFilterRule("#nfo\/$# i");
+        $crawler->addURLFilterRule("#commentaires\/$# i");
         $crawler->enableResumption();
-        (!file_exists(__DIR__."/../../logs/crawler-process-id-kickass.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp"));
+        (!file_exists(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp"));
         $crawler->goMultiProcessed(3);
         $report = $crawler->getProcessReport();
         if(!$report->memory_peak_usage){
@@ -81,21 +77,12 @@ class CrawlerKickass extends PHPCrawler{
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
             $doc = phpQuery::newDocumentHTML($DocInfo->content);
-            if($doc[".verifTorrentButton"] != ""){
-                $category = rtrim($doc[".dataList ul:nth-child(1) > li:nth-child(1) > strong"]->html(), ":");
-                preg_match("/Size:(.*)<span>(.*)<\/span>/", $doc[".folderopen"], $sizeMatches);
-                preg_match("/^(.*)<br>/", trim($doc['#summary > div:nth-child(1)']->html()), $descriptionMatch);
-
-
-                $data = array('slug' => $this->slugify($doc[".novertmarg > a > span"]->html()), 'title' => $doc[".novertmarg > a > span"]->html(),
-                    'description' => $descriptionMatch[1], 'downloadLink' => $doc['a.verifTorrentButton']->attr('href'),
-                    'size' => $sizeMatches[1] . ' ' . $sizeMatches[2], 'seeds' => $doc[".seedBlock strong"]->html(),
-                    'leechs' => $doc[".leechBlock strong"]->html(), 'url' => $DocInfo->url, 'tracker' => 'kickass',
-                    'category' => $category);
+            if($doc["a.telechargergreen"] != ""){
+                $data = $this->retrieveData($doc, $DocInfo->url);
                 if($this->updateData){
-                    $this->db->kickass->update(array("slug" => $data["slug"]), $data);
+                    $this->db->smartorrent->update(array("slug" => $data["slug"]), $data);
                 }else{
-                    $this->db->kickass->insert($data);
+                    $this->db->smartorrent->insert($data);
                 }
             }
         }
@@ -106,6 +93,21 @@ class CrawlerKickass extends PHPCrawler{
             $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
         flush();
+    }
+
+    function retrieveData($doc, $url){
+        $category = $doc[".fichetorrent tr:nth-child(2) > td > a"]->html();
+        preg_match("/<\/strong>(.*)<\/td>$/", trim($doc[".fichetorrent tr:nth-child(7)"]->html()), $size);
+        preg_match("/<\/strong>(.*)<\/td>$/", trim($doc[".fichetorrent tr:nth-child(9)"]->html()), $seedersRow);
+        list($seedersText, $leechersText, $completeText) = explode('-', $seedersRow[1]);
+        list($nbSeeders, $text) = explode(" ", trim($seedersText));
+        list($nbLeechers, $text) = explode(" ", trim($leechersText));
+        $data = array('slug' => $this->slugify($doc[".fichetorrent h1"]->html()), 'title' => $doc[".fichetorrent h1"]->html(),
+            'description' => "", 'downloadLink' => $doc['a.telechargergreen']->attr('href'),
+            'size' => $size[1], 'seeds' => $nbSeeders,
+            'leechs' => $nbLeechers, 'url' => $url, 'tracker' => 'smartorrent',
+            'category' => $category);
+        return $data;
     }
 
     function initChildProcess(){
