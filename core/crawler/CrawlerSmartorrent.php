@@ -28,7 +28,7 @@ class CrawlerSmartorrent extends PHPCrawler{
         error_reporting(E_ALL);
         $crawler->setLogger("new-data", $tracker);
         $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
-        $crawler->setURL($baseURL);
+        $crawler->setURL("http://smartorrent.com/torrent/Torrent-Django-Reinhardt--Tr?sors--CD-4--[-FLAC-]/238623/");
         $crawler->addContentTypeReceiveRule("#text/html#");
         $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
         $crawler->addURLFilterRule("#http:\/\/smartorrent.com\/dmca\/# i");
@@ -68,6 +68,8 @@ class CrawlerSmartorrent extends PHPCrawler{
 
     function handleDocumentInfo($DocInfo)
     {
+        $DocInfo->url = iconv("ISO-8859-1", "UTF-8", $DocInfo->url);
+        $DocInfo->content = iconv("ISO-8859-1", "UTF-8", $DocInfo->content);
         $date = new DateTime();
         // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
         if (PHP_SAPI == "cli") $lb = "\n";
@@ -76,7 +78,7 @@ class CrawlerSmartorrent extends PHPCrawler{
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-            $doc = phpQuery::newDocumentHTML(iconv("ISO-8859-1", "UTF-8", $DocInfo->content));
+            $doc = phpQuery::newDocumentHTML($DocInfo->content);
             if($doc["a.telechargergreen"] != ""){
                 $data = $this->retrieveData($doc, $DocInfo->url);
                 if($this->updateData){
