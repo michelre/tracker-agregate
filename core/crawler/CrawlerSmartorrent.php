@@ -24,30 +24,34 @@ class CrawlerSmartorrent extends PHPCrawler{
     }
 
     public static function crawlNew($baseURL, $tracker){
-        $crawler = new self();
-        error_reporting(E_ALL);
-        $crawler->setLogger("new-data", $tracker);
-        $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
-        $crawler->setURL("http://smartorrent.com/torrent/Torrent-Django-Reinhardt--Tr?sors--CD-4--[-FLAC-]/238623/");
-        $crawler->addContentTypeReceiveRule("#text/html#");
-        $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
-        $crawler->addURLFilterRule("#http:\/\/smartorrent.com\/dmca\/# i");
-        $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/user\/# i");
-        $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/forum\/# i");
-        $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/faq\/# i");
-        $crawler->addURLFilterRule("#fichiers\/$# i");
-        $crawler->addURLFilterRule("#similaires\/$# i");
-        $crawler->addURLFilterRule("#nfo\/$# i");
-        $crawler->addURLFilterRule("#commentaires\/$# i");
-        $crawler->enableResumption();
-        (!file_exists(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp"));
-        $crawler->goMultiProcessed(3);
-        $report = $crawler->getProcessReport();
-        if(!$report->memory_peak_usage){
-            $crawler->displayReport($report);
-            return true;
+        try{
+            $crawler = new self();
+            error_reporting(E_ALL);
+            $crawler->setLogger("new-data", $tracker);
+            $crawler->setUrlCacheType(PHPCrawlerUrlCacheTypes::URLCACHE_SQLITE);
+            $crawler->setURL($baseURL);
+            $crawler->addContentTypeReceiveRule("#text/html#");
+            $crawler->addURLFilterRule("#\.(jpg|jpeg|gif|png|torrent|exe|css|js|php)$# i");
+            $crawler->addURLFilterRule("#http:\/\/smartorrent.com\/dmca\/# i");
+            $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/user\/# i");
+            $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/forum\/# i");
+            $crawler->addURLFilterRule("#https:\/\/smartorrent.com\/faq\/# i");
+            $crawler->addURLFilterRule("#fichiers\/$# i");
+            $crawler->addURLFilterRule("#similaires\/$# i");
+            $crawler->addURLFilterRule("#nfo\/$# i");
+            $crawler->addURLFilterRule("#commentaires\/$# i");
+            $crawler->enableResumption();
+            (!file_exists(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp"));
+            $crawler->goMultiProcessed(3);
+            $report = $crawler->getProcessReport();
+            if(!$report->memory_peak_usage){
+                $crawler->displayReport($report);
+                return true;
+            }
+            return false;
+        }catch(Exception $e){
+            return false;
         }
-        return false;
     }
 
     public static function crawlUpdate($db, $cursor, $tracker){
@@ -68,33 +72,38 @@ class CrawlerSmartorrent extends PHPCrawler{
 
     function handleDocumentInfo($DocInfo)
     {
-        $DocInfo->url = iconv("ISO-8859-1", "UTF-8", $DocInfo->url);
-        $DocInfo->content = iconv("ISO-8859-1", "UTF-8", $DocInfo->content);
-        $date = new DateTime();
-        // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
-        if (PHP_SAPI == "cli") $lb = "\n";
-        else $lb = "<br />";
+        try{
+            $DocInfo->url = iconv("ISO-8859-1", "UTF-8", $DocInfo->url);
+            $DocInfo->content = iconv("ISO-8859-1", "UTF-8", $DocInfo->content);
+            $date = new DateTime();
+            // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
+            if (PHP_SAPI == "cli") $lb = "\n";
+            else $lb = "<br />";
 
-        // Print if the content of the document was be recieved or not
-        if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
-            $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-            $doc = phpQuery::newDocumentHTML($DocInfo->content);
-            if($doc["a.telechargergreen"] != ""){
-                $data = $this->retrieveData($doc, $DocInfo->url);
-                if($this->updateData){
-                    $this->db->smartorrent->update(array("slug" => $data["slug"]), $data);
-                }else{
-                    $this->db->smartorrent->insert($data);
+            // Print if the content of the document was be recieved or not
+            if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
+                $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+                $doc = phpQuery::newDocumentHTML($DocInfo->content);
+                if($doc["a.telechargergreen"] != ""){
+                    $data = $this->retrieveData($doc, $DocInfo->url);
+                    if($this->updateData){
+                        $this->db->smartorrent->update(array("slug" => $data["slug"]), $data);
+                    }else{
+                        $this->db->smartorrent->insert($data);
+                    }
                 }
             }
-        }
-        else if((int)$DocInfo->http_status_code == 301){
-            $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-        }
-        else
-            $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            else if((int)$DocInfo->http_status_code == 301){
+                $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
+            }
+            else
+                $this->logger->info($date->format("Y-m-d-H:i") . "-Content not received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
 
-        flush();
+            flush();
+        }catch(Exception $e){
+            throw $e;
+        }
+
     }
 
     function retrieveData($doc, $url){
