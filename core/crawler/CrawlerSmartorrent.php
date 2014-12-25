@@ -76,7 +76,7 @@ class CrawlerSmartorrent extends PHPCrawler{
         // Print if the content of the document was be recieved or not
         if ($DocInfo->received == true && (int)$DocInfo->http_status_code == 200 ){
             $this->logger->info($date->format("Y-m-d-H:i") . "-Page received: ".$DocInfo->url." (".$DocInfo->http_status_code.")".$lb);
-            $doc = phpQuery::newDocumentHTML($DocInfo->content);
+            $doc = phpQuery::newDocumentHTML(iconv("ISO-8859-1", "UTF-8", $DocInfo->content));
             if($doc["a.telechargergreen"] != ""){
                 $data = $this->retrieveData($doc, $DocInfo->url);
                 if($this->updateData){
