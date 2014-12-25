@@ -11,7 +11,7 @@ class CrawlerSmartorrent extends PHPCrawler{
     protected  $date;
     protected  $processId;
 
-    private function displayReport($report){
+    private function makeReport($report){
         if (PHP_SAPI == "cli") $lb = "\n";
         else $lb = "<br />";
 
@@ -20,7 +20,12 @@ class CrawlerSmartorrent extends PHPCrawler{
         $this->logger->info("Documents received: ".$report->files_received.$lb);
         $this->logger->info("Bytes received: ".$report->bytes_received." bytes".$lb);
         $this->logger->info("Process runtime: ".$report->process_runtime." sec".$lb);
-        unlink(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp");
+        if(!$report->user_abort && !$report->memory_peak_usage){
+            unlink(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp");
+            return true;
+        }
+        return false;
+
     }
 
     public static function crawlNew($baseURL, $tracker){
@@ -44,11 +49,7 @@ class CrawlerSmartorrent extends PHPCrawler{
             (!file_exists(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-smartorrent.tmp"));
             $crawler->goMultiProcessed(3);
             $report = $crawler->getProcessReport();
-            if(!$report->memory_peak_usage){
-                $crawler->displayReport($report);
-                return true;
-            }
-            return false;
+            return $crawler->makeReport($report);
         }catch(Exception $e){
             return false;
         }
@@ -101,7 +102,7 @@ class CrawlerSmartorrent extends PHPCrawler{
 
             flush();
         }catch(Exception $e){
-            throw $e;
+            return -1;
         }
 
     }
