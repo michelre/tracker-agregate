@@ -42,13 +42,16 @@ class CrawlerKickass extends PHPCrawler{
         $crawler->addURLFilterRule("#https:\/\/kickass.so\/community\/# i");
         $crawler->addURLFilterRule("#https:\/\/kickass.so\/faq\/# i");
         $crawler->addURLFilterRule("#https:\/\/kickass.so\/auth\/# i");
-	$crawler->addURLFilterRule("#https:\/\/kickass.so\/movies\/actor\/# i");
-
-        $crawler->enableCookieHandling(true);
+	    $crawler->addURLFilterRule("#https:\/\/kickass.so\/movies\/actor\/# i");
         $crawler->enableResumption();
         (!file_exists(__DIR__."/../../logs/crawler-process-id-kickass.tmp")) ? file_put_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp", $crawler->getCrawlerId()) :  $crawler->resume(file_get_contents(__DIR__."/../../logs/crawler-process-id-kickass.tmp"));
         $crawler->goMultiProcessed(7);
-        $crawler->displayReport($report = $crawler->getProcessReport());
+        $report = $crawler->getProcessReport();
+        if(!$report->memory_peak_usage){
+            $crawler->displayReport($report);
+            return true;
+        }
+        return false;
     }
 
     public static function crawlUpdate($db, $cursor, $tracker){

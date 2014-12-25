@@ -3,4 +3,6 @@
 require_once(__DIR__.'/../../crawler/CrawlerKickass.php');
 
 
-CrawlerKickass::crawlNew("https://kickass.so", "kickass");
+if(!CrawlerKickass::crawlNew("https://kickass.so", "kickass")){
+    exit(-1);
+};
